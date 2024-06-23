@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Employee Management</h1>
+
+    <!-- Login Form -->
+    <form id="login-form">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="f_userName"><br><br>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="f_Pwd"><br><br>
+      <button type="submit">Login</button>
+    </form>
+    <div id="login-response"></div>
+
+    <!-- Create Employee Form -->
+    <h2>Create Employee</h2>
+    <form id="create-employee-form" enctype="multipart/form-data">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="f_Name"><br><br>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="f_Email"><br><br>
+      <label for="mobile">Mobile:</label>
+      <input type="tel" id="mobile" name="f_Mobile"><br><br>
+      <label for="designation">Designation:</label>
+      <input type="text" id="designation" name="f_Designation"><br><br>
+      <label for="gender">Gender:</label>
+      <input type="text" id="gender" name="f_gender"><br><br>
+      <label for="course">Course:</label>
+      <input type="text" id="course" name="f_Course"><br><br>
+      <label for="image">Image:</label>
+      <input type="file" id="image" name="f_Image"><br><br>
+      <button type="submit">Create Employee</button>
+    </form>
+    <div id="create-employee-response"></div>
+
+    <!-- Employee List -->
+    <h2>Employee List</h2>
+    <ul id="employee-list"></ul>
+
+    <!-- Edit Employee Form -->
+    <h2>Edit Employee</h2>
+    <form id="edit-employee-form" enctype="multipart/form-data">
+      <label for="id">ID:</label>
+      <input type="number" id="id" name="id"><br><br>
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="f_Name"><br><br>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="f_Email"><br><br>
+      <label for="mobile">Mobile:</label>
+      <input type="tel" id="mobile" name="f_Mobile"><br><br>
+      <label for="designation">Designation:</label>
+      <input type="text" id="designation" name="f_Designation"><br><br>
+      <label for="gender">Gender:</label>
+      <input type="text" id="gender" name="f_gender"><br><br>
+      <label for="course">Course:</label>
+      <input type="text" id="course" name="f_Course"><br><br>
+      <label for="image">Image:</label>
+      <input type="file" id="image" name="f_Image"><br><br>
+      <button type="submit">Edit Employee</button>
+    </form>
+    <div id="edit-employee-response"></div>
+
+<!-- Delete Employee Form -->
+<h2>Delete Employee</h2>
+<form id="delete-employee-form">
+  <label for="delete-id">Employee ID:</label>
+  <input type="text" id="delete-id" name="id">
+  <button type="submit">Delete Employee</button>
+</form>
+<div id="delete-employee-response"></div>
+
+  <script>
+   async function handleFetch(url, options) {
+      try {
+        const response = await fetch(url, options);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          return await response.json();
+        } else {
+          const text = await response.text();
+          throw new Error(`Unexpected response: ${text}`);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+      }
+    }
+    // Login Form Event Listener
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      try {
+        const data = await handleFetch('http://localhost:3000/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ f_userName: username, f_Pwd: password })
+        });
+        document.getElementById('login-response').innerHTML = `Login response: ${data.message}`;
+      } catch (error) {
+        document.getElementById('login-response').innerHTML = `Error: ${error.message}`;
+      }
+    });
+
+    // Create Employee Form Event Listener
+    document.getElementById('create-employee-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      try {
+        const data = await handleFetch('http://localhost:3000/employee', {
+          method: 'POST',
+          body: formData,
+        });
+        document.getElementById('create-employee-response').innerHTML = `Create employee response: ${data.message}`;
+      } catch (error) {
+        document.getElementById('create-employee-response').innerHTML = `Error: ${error.message}`;
+      }
+    });
+
+    // Edit Employee Form Event Listener
+    document.getElementById('edit-employee-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const id = document.getElementById('id').value;
+      try {
+        const data = await handleFetch(`http://localhost:3000/employee/${id}`, {
+          method: 'PUT',
+          body: formData,
+        });
+        document.getElementById('edit-employee-response').innerHTML = `Edit employee response: ${data.message}`;
+      } catch (error) {
+        document.getElementById('edit-employee-response').innerHTML = `Error: ${error.message}`;
+      }
+    });
+
+
+    document.getElementById('delete-employee-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('delete-id').value.trim();
+  console.log(`ID: ${id}`); // Check the ID value in the console for debugging
+  if (!id) {
+    document.getElementById('delete-employee-response').innerHTML = 'ID is required';
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:3000/employee/${id}`, {
+      method: 'DELETE'
+    });
+    if (response.ok) {
+      document.getElementById('delete-employee-response').innerHTML = `Employee with ID ${id} successfully deleted`;
+      // Optionally, you can update the employee list here or provide further feedback
+    } else {
+      const data = await response.json();
+      document.getElementById('delete-employee-response').innerHTML = `Error: ${data.error}`;
+    }
+  } catch (error) {
+    console.error('Error deleting employee:', error);
+    document.getElementById('delete-employee-response').innerHTML = `Error: ${error.message}`;
+  }
+});
+
+
+   // Fetch Employee List
+async function fetchEmployeeList() {
+  try {
+    const data = await handleFetch('http://localhost:3000/employees');
+    const employeeList = document.getElementById('employee-list');
+    employeeList.innerHTML = '';
+    data.forEach(employee => {
+      const listItem = document.createElement('li');
+      listItem.textContent = `${employee.f_Name} (${employee.f_Id})`;
+      listItem.addEventListener('click', () => { // Add an event listener to each list item
+        document.getElementById('id').value = employee.f_Id; // Set the id value when an employee is selected
+      });
+      employeeList.appendChild(listItem);
+    });
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+    // Initialize employee list on page load
+    fetchEmployeeList();
+  </script>
+</body>
+</html>
