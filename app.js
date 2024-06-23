@@ -130,10 +130,6 @@ app.put('/employee/:id', upload.single('f_Image'), [
 });
 
 // Delete Employee API
-let employees = [
-  { id: 1, f_Name: 'John Doe', f_Email: 'john@example.com' },
-  // Add more dummy data as needed
-];
 
 
 // Delete Employee API
